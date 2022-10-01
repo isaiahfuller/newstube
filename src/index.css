@@ -1,0 +1,64 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer components {
+  body {
+    @apply bg-slate-900 text-gray-50;
+  }
+  input[type=url] {
+    @apply p-2 rounded w-auto;
+  }
+  li:nth-child(even) {
+    @apply bg-slate-800;
+  }
+  .button{
+    @apply text-gray-50 border-slate-600 hover:border-slate-400;
+    @apply p-2 border-2 border-solid mx-1 cursor-pointer rounded;
+  }
+  .videolist {
+    @apply h-[94%] overflow-y-scroll px-1;
+  }
+  .videolist > ul > li {
+    @apply py-1 text-ellipsis overflow-hidden;
+  }
+  .main {
+    @apply flex flex-col lg:flex-row justify-center;
+  }
+  .sidebar {
+    @apply h-[60vh] lg:h-screen lg:w-1/4;
+  }
+  .video-player {
+    @apply h-[40vh] w-screen lg:h-screen lg:w-3/4;
+  }
+  .controls {
+    @apply flex justify-around py-3
+  }
+  .channels {
+    @apply flex flex-col justify-around items-stretch w-screen h-screen overflow-hidden;
+  }
+  .channels-form > input[type=url] {
+    @apply text-black w-60 lg:w-96;
+  }
+  .channels-list{
+    @apply h-screen overflow-y-scroll
+  }
+  .channels-list-element {
+    @apply flex items-center p-5;
+  }
+  .channels-list-element > img {
+    @apply rounded-full
+  }
+  .channels-top {
+    @apply flex justify-around p-2
+  }
+  .videolist-video {
+    @apply flex items-center w-full
+  }
+  .videolist-video img {
+    @apply aspect-video h-10 xl:h-24 p-1
+  }
+  .videolist-text p {
+    @apply block
+  }
+}
