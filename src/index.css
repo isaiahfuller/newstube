@@ -6,8 +6,11 @@
   body {
     @apply bg-slate-900 text-gray-50;
   }
-  input[type=url] {
+  input {
     @apply p-2 rounded w-auto;
+  }
+  input[type=text] {
+    @apply text-black w-60 lg:w-96;
   }
   li:nth-child(even) {
     @apply bg-slate-800;
@@ -51,6 +54,9 @@
   }
   .channels-top {
     @apply flex justify-around p-2
+  }
+  .channels-footer {
+    @apply flex justify-center p-2
   }
   .videolist-video {
     @apply flex items-center w-full

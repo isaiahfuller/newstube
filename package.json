@@ -11,6 +11,7 @@
     "react-dom": "^18.2.0",
     "react-player": "^2.10.1",
     "react-scripts": "5.0.1",
+    "remotestoragejs": "^2.0.0-beta.4",
     "web-vitals": "^2.1.4",
     "xml-js": "^1.6.11",
     "yt-channel-info": "^3.1.0"

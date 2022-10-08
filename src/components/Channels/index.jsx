@@ -1,4 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
+import { useMemo } from "react";
+import RemoteStorage from "remotestoragejs";
 
 export default function Channels({
   videos,
@@ -9,23 +11,72 @@ export default function Channels({
   getVideos,
 }) {
   const [url, setUrl] = useState("");
+  const [rsAddress, setRsAddress] = useState("");
   const matchRegex = /youtube.com\/(channel|user|c)\/[\w\-_]+/;
   const inputFile = useRef(null);
+
+  let Channels = {name: "newstube", builder: function(privateClient, publicClient){
+    privateClient.declareType("channel", {
+      "channelId": "string",
+      "channelName": "string",
+      "thumbnail": "string",
+      "url": "string",
+      "subscribers": "string",
+    })
+    return {
+      exports: {
+        addChannel: (channel)=>{
+          let path = "/channels/" + channel.channelId 
+          console.log(path)
+          return privateClient.storeObject("channel", path, channel).then(()=>{
+            return channel
+          })
+        }
+      }
+    }
+  }}
+
+  const remoteStorage = new RemoteStorage({modules: [Channels]});
+
+  remoteStorage.access.claim("newstube", "rw");
+  remoteStorage.caching.enable("/newstube/");
+  let rsClient = remoteStorage.scope("/newstube/")
+
+  remoteStorage.on("error", (err) => console.error);
+  remoteStorage.on("connected", () => console.log("remoteStorage connected"))
+  remoteStorage.on("not-connected", () => console.log("remoteStorage connected (anonymous)"))
 
   function onSubmit(e) {
     e.preventDefault();
     if (url.match(matchRegex)) {
-      fetch(
-        "https://isaiah.moe:4560/channel?" +
-          new URLSearchParams({
-            url: url,
-          })
-      )
-        .then((res) => res.json())
-        .then((res) => {
-          setUrl("");
-          if (!channels.filter((e) => e.channelId === res.authorId).length) {
-            setChannels([
+      addChannel(url)
+    }
+  }
+
+  function addChannel(url) {
+    fetch(
+      "/channel?" +
+        new URLSearchParams({
+          url: url,
+        })
+    )
+      .then((res) => res.json())
+      .then((res) => {
+        setUrl("");
+        if (!channels.filter((e) => e.channelId === res.authorId).length) {
+          setChannels([
+            ...channels,
+            {
+              channelId: res.authorId,
+              channelName: res.author,
+              thumbnail: res.authorThumbnails[1].url,
+              url: res.authorUrl,
+              subscribers: res.subscriberText,
+            },
+          ]);
+          localStorage.setItem(
+            "channels",
+            JSON.stringify([
               ...channels,
               {
                 channelId: res.authorId,
@@ -34,34 +85,32 @@ export default function Channels({
                 url: res.authorUrl,
                 subscribers: res.subscriberText,
               },
-            ]);
-            localStorage.setItem(
-              "channels",
-              JSON.stringify([
-                ...channels,
-                {
-                  channelId: res.authorId,
-                  channelName: res.author,
-                  thumbnail: res.authorThumbnails[1].url,
-                  url: res.authorUrl,
-                  subscribers: res.subscriberText,
-                },
-              ])
-            );
-          }
-        });
-    }
+            ])
+          );
+          remoteStorage.newstube.addChannel({
+            channelId: res.authorId,
+            channelName: res.author,
+            thumbnail: res.authorThumbnails[1].url,
+            url: res.authorUrl,
+            subscribers: res.subscriberText,
+          })
+        }
+      });
   }
 
   function removeChannel(index) {
     let temp = [...channels];
+    console.log(temp)
     temp.splice(index, 1);
     setChannels(temp);
+    localStorage.setItem("channels", JSON.stringify(temp));
   }
 
   function saveChannels() {
     getVideos();
     localStorage.setItem("channels", JSON.stringify(channels));
+    // rsClient.storeObject("channels", "channels", channels)
+    // rsClient.storeFile("application/json", "channels.json", JSON.stringify(channels))
   }
 
   function importChannels(e) {
@@ -70,6 +119,28 @@ export default function Channels({
       setChannels(JSON.parse(text));
       localStorage.setItem("channels", text);
     });
+  }
+
+  function connectRS(e) {
+    e.preventDefault()
+    console.log(rsAddress);
+    remoteStorage.connect(rsAddress);
+    rsClient = remoteStorage.scope("/newstube/")
+    // console.log(channels);
+    rsClient.getAll("/").then(files => {
+      let newChannels = [...channels]
+      files = files['channels/']
+      Object.keys(files).forEach((file) => {
+        rsClient.getObject("/channels/"+file).then((e)=>{
+          console.log(e)
+          newChannels.push(e)
+        })
+      })
+      setChannels([...newChannels])
+      console.log(channels, newChannels)
+    })
+    // rsClient.getObject("/channels/UC12GAuU2Xe7CzEZAoKEwTeg").then(console.log)
+    // rsClient.getFile("channels.json").then(console.log)
   }
 
   return (
@@ -124,6 +195,19 @@ export default function Channels({
           );
         })}
       </ul>
+      <hr />
+      <div>
+        <form className="channels-footer" onSubmit={connectRS}>
+        <input
+          type="text"
+          value={rsAddress}
+          placeholder="Remote Storage Address"
+          onChange={(e) => setRsAddress(e.target.value)}
+        />
+        <input type="submit" className="button" onClick={connectRS} value="Connect" />
+        <a className="button" href="https://5apps.com/storage" target="_blank">Info</a>
+        </form>
+      </div>
     </div>
   );
 }

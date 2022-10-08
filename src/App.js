@@ -3,7 +3,6 @@ import Channels from "./components/Channels";
 import Controls from "./components/Controls";
 import Video from "./components/Video";
 import VideoList from "./components/VideoList";
-// import ReactPlayer from "react-player/youtube";
 
 function App() {
   const [loading, setLoading] = useState(true);
@@ -34,7 +33,7 @@ function App() {
     let unsortedVideos = [];
     for (let ch of channels) {
       fetch(
-        "https://isaiah.moe:4560/videos?" +
+        "/videos?" +
           new URLSearchParams({ url: ch.channelId })
       )
         .then((res) => res.json())

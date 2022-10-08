@@ -28,7 +28,7 @@ export default function Video({
         url={`https://youtu.be/${id["yt:videoId"]}`}
         onStart={onStart}
         onEnded={onEnded}
-        playing={true}
+        playing={false}
         controls={true}
         width="100%"
         height="100%"
