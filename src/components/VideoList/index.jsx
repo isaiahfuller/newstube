@@ -4,10 +4,11 @@ export default function VideoList({ videos }) {
     <div className="videolist">
       <ul>
         {videos.map((video) => (
-          <li key={video.videoId} className="videolist-item">
+          <li key={video["yt:videoId"]} className="videolist-item">
             <div className="videolist-video">
               <img
                 src={`https://i3.ytimg.com/vi/${video["yt:videoId"]}/maxresdefault.jpg`}
+                alt={video.title}
               />
               <div className="videolist-text">
                 <p>{video.title}</p>

@@ -1,13 +1,11 @@
-import React, { useEffect, useRef, useState } from "react";
-import { useMemo } from "react";
-import RemoteStorage from "remotestoragejs";
+import React, { useRef, useState } from "react";
+import { useEffect } from "react";
 
 export default function Channels({
-  videos,
-  setVideos,
-  setCurrentVideo,
   channels,
   setChannels,
+  rsClient,
+  remoteStorage,
   getVideos,
 }) {
   const [url, setUrl] = useState("");
@@ -15,41 +13,17 @@ export default function Channels({
   const matchRegex = /youtube.com\/(channel|user|c)\/[\w\-_]+/;
   const inputFile = useRef(null);
 
-  let Channels = {name: "newstube", builder: function(privateClient, publicClient){
-    privateClient.declareType("channel", {
-      "channelId": "string",
-      "channelName": "string",
-      "thumbnail": "string",
-      "url": "string",
-      "subscribers": "string",
-    })
-    return {
-      exports: {
-        addChannel: (channel)=>{
-          let path = "/channels/" + channel.channelId 
-          console.log(path)
-          return privateClient.storeObject("channel", path, channel).then(()=>{
-            return channel
-          })
-        }
-      }
-    }
-  }}
-
-  const remoteStorage = new RemoteStorage({modules: [Channels]});
-
-  remoteStorage.access.claim("newstube", "rw");
-  remoteStorage.caching.enable("/newstube/");
-  let rsClient = remoteStorage.scope("/newstube/")
-
-  remoteStorage.on("error", (err) => console.error);
-  remoteStorage.on("connected", () => console.log("remoteStorage connected"))
-  remoteStorage.on("not-connected", () => console.log("remoteStorage connected (anonymous)"))
+  useEffect(() => {
+    return () => {
+      setUrl("");
+      setRsAddress("");
+    };
+  }, []);
 
   function onSubmit(e) {
     e.preventDefault();
     if (url.match(matchRegex)) {
-      addChannel(url)
+      addChannel(url);
     }
   }
 
@@ -74,41 +48,32 @@ export default function Channels({
               subscribers: res.subscriberText,
             },
           ]);
-          localStorage.setItem(
-            "channels",
-            JSON.stringify([
-              ...channels,
-              {
-                channelId: res.authorId,
-                channelName: res.author,
-                thumbnail: res.authorThumbnails[1].url,
-                url: res.authorUrl,
-                subscribers: res.subscriberText,
-              },
-            ])
-          );
           remoteStorage.newstube.addChannel({
             channelId: res.authorId,
             channelName: res.author,
             thumbnail: res.authorThumbnails[1].url,
             url: res.authorUrl,
             subscribers: res.subscriberText,
-          })
+          });
         }
       });
   }
 
   function removeChannel(index) {
-    let temp = [...channels];
-    console.log(temp)
-    temp.splice(index, 1);
-    setChannels(temp);
-    localStorage.setItem("channels", JSON.stringify(temp));
+    let tempChannels = [...channels];
+    let channel = tempChannels.splice(index, 1)[0];
+    rsClient.remove("/channels/" + channel.channelId);
+    setChannels(tempChannels);
+    saveChannels();
   }
 
-  function saveChannels() {
+  function saveChannels(newChannels = null) {
+    // localStorage.setItem("channels", JSON.stringify(newChannels || channels));
+  }
+
+  function startPlayer() {
+    // console.log(channels)
     getVideos();
-    localStorage.setItem("channels", JSON.stringify(channels));
     // rsClient.storeObject("channels", "channels", channels)
     // rsClient.storeFile("application/json", "channels.json", JSON.stringify(channels))
   }
@@ -116,29 +81,31 @@ export default function Channels({
   function importChannels(e) {
     let file = e.target.files[0];
     file.text().then((text) => {
-      setChannels(JSON.parse(text));
-      localStorage.setItem("channels", text);
+      let parsed = JSON.parse(text);
+      console.log(parsed);
+      parsed.forEach((e) => {
+        remoteStorage.newstube.addChannel(e);
+      });
     });
   }
 
   function connectRS(e) {
-    e.preventDefault()
-    console.log(rsAddress);
+    e.preventDefault();
     remoteStorage.connect(rsAddress);
-    rsClient = remoteStorage.scope("/newstube/")
+    rsClient = remoteStorage.scope("/newstube/");
     // console.log(channels);
-    rsClient.getAll("/").then(files => {
-      let newChannels = [...channels]
-      files = files['channels/']
+    rsClient.getAll("/").then((files) => {
+      let newChannels = [...channels];
+      files = files["channels/"];
       Object.keys(files).forEach((file) => {
-        rsClient.getObject("/channels/"+file).then((e)=>{
-          console.log(e)
-          newChannels.push(e)
-        })
-      })
-      setChannels([...newChannels])
-      console.log(channels, newChannels)
-    })
+        rsClient.getObject("/channels/" + file).then((e) => {
+          console.log(e);
+          newChannels.push(e);
+        });
+      });
+      setChannels([...newChannels]);
+      console.log(channels, newChannels);
+    });
     // rsClient.getObject("/channels/UC12GAuU2Xe7CzEZAoKEwTeg").then(console.log)
     // rsClient.getFile("channels.json").then(console.log)
   }
@@ -168,7 +135,7 @@ export default function Channels({
             className="hidden"
           />
           {channels.length ? (
-            <button className="button" onClick={saveChannels}>
+            <button className="button" onClick={startPlayer}>
               Save
             </button>
           ) : null}
@@ -180,7 +147,7 @@ export default function Channels({
           return (
             <li key={i} className="flex justify-between">
               <div className="channels-list-element">
-                <img src={ch.thumbnail} />
+                <img src={ch.thumbnail} alt={ch.channelName} />
                 <a href={ch.url} target="_blank" rel="noreferrer">
                   <div className="p-2">
                     <p>{ch.channelName}</p>
@@ -198,14 +165,26 @@ export default function Channels({
       <hr />
       <div>
         <form className="channels-footer" onSubmit={connectRS}>
-        <input
-          type="text"
-          value={rsAddress}
-          placeholder="Remote Storage Address"
-          onChange={(e) => setRsAddress(e.target.value)}
-        />
-        <input type="submit" className="button" onClick={connectRS} value="Connect" />
-        <a className="button" href="https://5apps.com/storage" target="_blank">Info</a>
+          <input
+            type="text"
+            value={rsAddress}
+            placeholder="Remote Storage Address"
+            onChange={(e) => setRsAddress(e.target.value)}
+          />
+          <input
+            type="submit"
+            className="button"
+            onClick={connectRS}
+            value="Connect"
+          />
+          <a
+            className="button"
+            href="https://5apps.com/storage"
+            target="_blank"
+            rel="noreferrer"
+          >
+            Info
+          </a>
         </form>
       </div>
     </div>
