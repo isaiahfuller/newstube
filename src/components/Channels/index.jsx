@@ -16,7 +16,7 @@ export default function Channels({
     e.preventDefault();
     if (url.match(matchRegex)) {
       fetch(
-        "https://isaiah.moe:4560/channel?" +
+        "/newstube/channel?" +
           new URLSearchParams({
             url: url,
           })

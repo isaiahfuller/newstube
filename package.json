@@ -44,5 +44,5 @@
     "postcss": "^8.4.16",
     "tailwindcss": "^3.1.8"
   },
-  "proxy": "https://isaiah.moe:4560"
+  "proxy": "https://isaiah.moe/"
 }
