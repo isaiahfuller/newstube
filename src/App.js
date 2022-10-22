@@ -99,7 +99,7 @@ function App() {
     console.log("get");
     let unsortedVideos = [];
     for (let ch of channels) {
-      fetch("/videos?" + new URLSearchParams({ url: ch.channelId }))
+      fetch("/newstube/videos?" + new URLSearchParams({ url: ch.channelId }))
         .then((res) => res.json())
         .then((res) => {
           unsortedVideos.push(res);

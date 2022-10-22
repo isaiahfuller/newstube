@@ -29,7 +29,7 @@ export default function Channels({
 
   function addChannel(url) {
     fetch(
-      "/channel?" +
+      "/newstube/channel?" +
         new URLSearchParams({
           url: url,
         })
