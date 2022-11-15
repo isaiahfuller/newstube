@@ -7,7 +7,6 @@ export default function Channels({
   getVideos,
 }) {
   const [url, setUrl] = useState("");
-  const [rsAddress, setRsAddress] = useState("");
   const matchRegex = /youtube.com\/(channel|user|c)\/[\w\-_]+/;
   const inputFile = useRef(null);
 
@@ -66,8 +65,7 @@ export default function Channels({
 
   function removeChannel(index) {
     let tempChannels = [...channels];
-    let channel = tempChannels.splice(index, 1)[0];
-    rsClient.remove("/channels/" + channel.channelId);
+    tempChannels.splice(index, 1);
     setChannels(tempChannels);
     saveChannels();
   }
@@ -77,42 +75,15 @@ export default function Channels({
   }
 
   function startPlayer() {
-    // console.log(channels)
     getVideos();
-    // rsClient.storeObject("channels", "channels", channels)
-    // rsClient.storeFile("application/json", "channels.json", JSON.stringify(channels))
   }
 
   function importChannels(e) {
     let file = e.target.files[0];
     file.text().then((text) => {
-      let parsed = JSON.parse(text);
-      console.log(parsed);
-      parsed.forEach((e) => {
-        remoteStorage.newstube.addChannel(e);
-      });
+      setChannels(JSON.parse(text));
+      localStorage.setItem("channels", text);
     });
-  }
-
-  function connectRS(e) {
-    e.preventDefault();
-    remoteStorage.connect(rsAddress);
-    rsClient = remoteStorage.scope("/newstube/");
-    // console.log(channels);
-    rsClient.getAll("/").then((files) => {
-      let newChannels = [...channels];
-      files = files["channels/"];
-      Object.keys(files).forEach((file) => {
-        rsClient.getObject("/channels/" + file).then((e) => {
-          console.log(e);
-          newChannels.push(e);
-        });
-      });
-      setChannels([...newChannels]);
-      console.log(channels, newChannels);
-    });
-    // rsClient.getObject("/channels/UC12GAuU2Xe7CzEZAoKEwTeg").then(console.log)
-    // rsClient.getFile("channels.json").then(console.log)
   }
 
   return (
@@ -158,31 +129,6 @@ export default function Channels({
           />
         ))}
       </ul>
-      <hr />
-      <div>
-        <form className="channels-footer" onSubmit={connectRS}>
-          <input
-            type="text"
-            value={rsAddress}
-            placeholder="Remote Storage Address"
-            onChange={(e) => setRsAddress(e.target.value)}
-          />
-          <input
-            type="submit"
-            className="button"
-            onClick={connectRS}
-            value="Connect"
-          />
-          <a
-            className="button"
-            href="https://5apps.com/storage"
-            target="_blank"
-            rel="noreferrer"
-          >
-            Info
-          </a>
-        </form>
-      </div>
     </div>
   );
 }
