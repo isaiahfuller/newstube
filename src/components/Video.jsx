@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React from "react";
 import ReactPlayer from "react-player/youtube";
 export default function Video({
   id,
@@ -19,16 +19,16 @@ export default function Video({
   function onEnded(e) {
     setCurrentVideo(videos[0]);
     setVideos([...videos].slice(1));
-    setWatched([...watchedIds, id["yt:videoId"]]);
+    setWatched([...watchedIds, id.id]);
   }
 
   return (
     <div className="video-player">
       <ReactPlayer
-        url={`https://youtu.be/${id["yt:videoId"]}`}
+        url={`https://youtu.be/${id.id}`}
         onStart={onStart}
         onEnded={onEnded}
-        playing={false}
+        playing={true}
         controls={true}
         width="100%"
         height="100%"

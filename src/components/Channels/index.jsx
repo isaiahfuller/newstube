@@ -5,14 +5,16 @@ export default function Channels({
   channels,
   setChannels,
   getVideos,
+  playlists,
+  setPlaylists,
 }) {
   const [url, setUrl] = useState("");
-  const matchRegex = /youtube.com\/(channel|user|c)\/[\w\-_]+/;
+  const matchRegex = /youtube.com\/(channel|user|c|@)[/\w\-_]+/;
   const inputFile = useRef(null);
 
-  useEffect(()=>{
-    sortChannels()
-  },[])
+  useEffect(() => {
+    if (channels.length) sortChannels();
+  }, []);
 
   function onSubmit(e) {
     e.preventDefault();
@@ -35,32 +37,23 @@ export default function Channels({
                 thumbnail: res.authorThumbnails[1].url,
                 url: res.authorUrl,
               },
-            ])
-            localStorage.setItem(
-              "channels",
-              JSON.stringify([
-                ...channels,
-                {
-                  channelId: res.authorId,
-                  channelName: res.author,
-                  thumbnail: res.authorThumbnails[1].url,
-                  url: res.authorUrl,
-                },
-              ])
-            );
+            ]);
           }
         });
+    } else if(url.includes("?list=")){
+      
     }
   }
 
-  function sortChannels(newChannels=[...channels]){
-    newChannels.sort((a,b) => {
-      let lowA = a.channelName.toLowerCase().replace(/^the/,'').trim()
-      let lowB = b.channelName.toLowerCase().replace(/^the/,'').trim()
+  function sortChannels(newChannels = [...channels]) {
+    let temp = newChannels.sort((a, b) => {
+      let lowA = a.channelName.toLowerCase().replace(/^the/, "").trim();
+      let lowB = b.channelName.toLowerCase().replace(/^the/, "").trim();
 
-      return lowA > lowB
-    })
-    setChannels(newChannels)
+      return lowA > lowB;
+    });
+    setChannels(temp);
+    localStorage.setItem("channels", JSON.stringify(temp));
   }
 
   function removeChannel(index) {
@@ -81,8 +74,7 @@ export default function Channels({
   function importChannels(e) {
     let file = e.target.files[0];
     file.text().then((text) => {
-      setChannels(JSON.parse(text));
-      localStorage.setItem("channels", text);
+      sortChannels(JSON.parse(text));
     });
   }
 
@@ -93,7 +85,7 @@ export default function Channels({
           <input
             name="url"
             type="url"
-            placeholder="YouTube channel URL"
+            placeholder="YouTube channel/playlist URL"
             onChange={(e) => setUrl(e.target.value)}
             value={url}
           />
@@ -121,6 +113,7 @@ export default function Channels({
       <ul className="channels-list">
         {channels.map((ch, i) => (
           <Channel
+            key={i}
             i={i}
             thumbnail={ch.thumbnail}
             url={ch.url}
