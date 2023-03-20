@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import Channels from "./components/Channels";
+import { default as ChannelsList } from "./components/Channels";
 import Controls from "./components/Controls";
 import Video from "./components/Video";
 import VideoList from "./components/VideoList";
@@ -9,12 +9,17 @@ function App() {
   const [videos, setVideos] = useState([]);
   const [currentVideo, setCurrentVideo] = useState({});
   const [channels, setChannels] = useState([]);
+  const [playlists, setPlaylists] = useState([]);
   const [watchedIds, setWatched] = useState([]);
 
   useEffect(() => {
     let tempChannels = JSON.parse(localStorage.getItem("channels"));
+    let tempPlaylists = JSON.parse(localStorage.getItem("playlists"));
     if (tempChannels) setChannels(tempChannels);
     tempChannels = null;
+
+    if (tempPlaylists) setChannels(tempPlaylists);
+    tempPlaylists = null;
 
     let tempWatched = JSON.parse(localStorage.getItem("watched"));
     if (tempWatched) setWatched(tempWatched);
@@ -25,16 +30,31 @@ function App() {
       setVideos([]);
       setCurrentVideo({});
       setChannels([]);
+      setPlaylists([]);
       setWatched([]);
     };
   }, []);
 
   function getVideos() {
+    console.log("get");
     let unsortedVideos = [];
     for (let ch of channels) {
       fetch(
         "/newstube/videos?" +
-          new URLSearchParams({ url: ch.channelId })
+          new URLSearchParams({ id: ch.channelId, type: "channel" })
+      )
+        .then((res) => res.json())
+        .then((res) => {
+          unsortedVideos.push(res);
+          if (unsortedVideos.length === channels.length) {
+            sortVideos(unsortedVideos.flat());
+          }
+        });
+    }
+    for (let pl of playlists) {
+      fetch(
+        "/newstube/videos?" +
+          new URLSearchParams({ url: pl.id, type: "playlist" })
       )
         .then((res) => res.json())
         .then((res) => {
@@ -47,22 +67,21 @@ function App() {
   }
 
   function sortVideos(arr) {
+    console.log("sort");
     let sortedArr = arr.sort((a, b) => {
       return Date.parse(b.published) - Date.parse(a.published);
     });
-    sortedArr = sortedArr.filter(
-      (e) => !watchedIds.includes(e["yt:videoId"])
-    );
+    sortedArr = sortedArr.filter((e) => !watchedIds.includes(e.id));
     if (Object.keys(currentVideo).length) {
       sortedArr = sortedArr.filter(
-        (e) => e["yt:videoId"] !== currentVideo["yt:videoId"]
+        (e) => e.id !== currentVideo.id
       );
-      setVideos([...new Set(sortedArr)]);
+      setVideos(sortedArr);
     } else {
       setCurrentVideo(sortedArr[0]);
       setVideos(sortedArr.slice(1));
     }
-    setLoading(false);
+    if(loading) setLoading(false);
   }
 
   if (!loading && videos.length) {
@@ -97,13 +116,15 @@ function App() {
     return (
       <div className="App">
         <div className="main">
-          <Channels
+          <ChannelsList
             videos={videos}
             setVideos={setVideos}
             setCurrentVideo={setCurrentVideo}
             channels={channels}
             setChannels={setChannels}
             getVideos={getVideos}
+            playlists={playlists}
+            setPlaylists={setPlaylists}
           />
         </div>
       </div>

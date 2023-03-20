@@ -1,16 +1,20 @@
 import React, { useEffect, useRef, useState } from "react";
+import Channel from "./Channel";
 
 export default function Channels({
-  videos,
-  setVideos,
-  setCurrentVideo,
   channels,
   setChannels,
   getVideos,
+  playlists,
+  setPlaylists,
 }) {
   const [url, setUrl] = useState("");
-  const matchRegex = /youtube.com\/(channel|user|c)\/[\w\-_]+/;
+  const matchRegex = /youtube.com\/(channel|user|c|@)[/\w\-_]+/;
   const inputFile = useRef(null);
+
+  useEffect(() => {
+    if (channels.length) sortChannels();
+  }, []);
 
   function onSubmit(e) {
     e.preventDefault();
@@ -24,51 +28,54 @@ export default function Channels({
         .then((res) => res.json())
         .then((res) => {
           setUrl("");
-          if (!channels.filter((e) => e.channelId === res.authorId).length) {
-            setChannels([
+          console.log(res)
+          if (!channels.filter((e) => e.channelId === res.header.author.id).length) {
+            sortChannels([
               ...channels,
               {
-                channelId: res.authorId,
-                channelName: res.author,
-                thumbnail: res.authorThumbnails[1].url,
-                url: res.authorUrl,
-                subscribers: res.subscriberText,
+                channelId: res.header.author.id,
+                channelName: res.header.author.name,
+                thumbnail: res.header.author.thumbnails[1].url,
+                url: res.header.author.url,
               },
             ]);
-            localStorage.setItem(
-              "channels",
-              JSON.stringify([
-                ...channels,
-                {
-                  channelId: res.authorId,
-                  channelName: res.author,
-                  thumbnail: res.authorThumbnails[1].url,
-                  url: res.authorUrl,
-                  subscribers: res.subscriberText,
-                },
-              ])
-            );
           }
         });
+    } else if(url.includes("?list=")){
+      
     }
   }
 
-  function removeChannel(index) {
-    let temp = [...channels];
-    temp.splice(index, 1);
+  function sortChannels(newChannels = [...channels]) {
+    let temp = newChannels.sort((a, b) => {
+      let lowA = a.channelName.toLowerCase().replace(/^the/, "").trim();
+      let lowB = b.channelName.toLowerCase().replace(/^the/, "").trim();
+
+      return lowA > lowB;
+    });
     setChannels(temp);
+    localStorage.setItem("channels", JSON.stringify(temp));
   }
 
-  function saveChannels() {
+  function removeChannel(index) {
+    let tempChannels = [...channels];
+    tempChannels.splice(index, 1);
+    setChannels(tempChannels);
+    saveChannels();
+  }
+
+  function saveChannels(newChannels = null) {
+    localStorage.setItem("channels", JSON.stringify(newChannels || channels));
+  }
+
+  function startPlayer() {
     getVideos();
-    localStorage.setItem("channels", JSON.stringify(channels));
   }
 
   function importChannels(e) {
     let file = e.target.files[0];
     file.text().then((text) => {
-      setChannels(JSON.parse(text));
-      localStorage.setItem("channels", text);
+      sortChannels(JSON.parse(text));
     });
   }
 
@@ -79,7 +86,7 @@ export default function Channels({
           <input
             name="url"
             type="url"
-            placeholder="YouTube channel URL"
+            placeholder="YouTube channel/playlist URL"
             onChange={(e) => setUrl(e.target.value)}
             value={url}
           />
@@ -97,7 +104,7 @@ export default function Channels({
             className="hidden"
           />
           {channels.length ? (
-            <button className="button" onClick={saveChannels}>
+            <button className="button" onClick={startPlayer}>
               Save
             </button>
           ) : null}
@@ -105,24 +112,16 @@ export default function Channels({
       </div>
       <hr />
       <ul className="channels-list">
-        {channels.map((ch, i) => {
-          return (
-            <li key={i} className="flex justify-between">
-              <div className="channels-list-element">
-                <img src={ch.thumbnail} />
-                <a href={ch.url} target="_blank" rel="noreferrer">
-                  <div className="p-2">
-                    <p>{ch.channelName}</p>
-                    <p className="text-sm">{ch.subscribers}</p>
-                  </div>
-                </a>
-              </div>
-              <button className="px-5" onClick={() => removeChannel(i)}>
-                X
-              </button>
-            </li>
-          );
-        })}
+        {channels.map((ch, i) => (
+          <Channel
+            key={i}
+            i={i}
+            thumbnail={ch.thumbnail}
+            url={ch.url}
+            channelName={ch.channelName}
+            removeChannel={removeChannel}
+          />
+        ))}
       </ul>
     </div>
   );
