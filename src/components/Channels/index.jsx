@@ -28,14 +28,15 @@ export default function Channels({
         .then((res) => res.json())
         .then((res) => {
           setUrl("");
-          if (!channels.filter((e) => e.channelId === res.authorId).length) {
+          console.log(res)
+          if (!channels.filter((e) => e.channelId === res.header.author.id).length) {
             sortChannels([
               ...channels,
               {
-                channelId: res.authorId,
-                channelName: res.author,
-                thumbnail: res.authorThumbnails[1].url,
-                url: res.authorUrl,
+                channelId: res.header.author.id,
+                channelName: res.header.author.name,
+                thumbnail: res.header.author.thumbnails[1].url,
+                url: res.header.author.url,
               },
             ]);
           }
