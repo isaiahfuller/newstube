@@ -39,31 +39,34 @@ function App() {
     console.log("get");
     let unsortedVideos = [];
     for (let ch of channels) {
+      // console.log(ch.type)
+      let urlParams = {type: ch.type, id: ch.type === "playlist" ? ch.playlistId : ch.channelId}
       fetch(
         "/newstube/videos?" +
-          new URLSearchParams({ id: ch.channelId, type: "channel" })
+          new URLSearchParams(urlParams)
       )
         .then((res) => res.json())
         .then((res) => {
+          // console.log(res)
           unsortedVideos.push(res);
           if (unsortedVideos.length === channels.length) {
             sortVideos(unsortedVideos.flat());
           }
         });
     }
-    for (let pl of playlists) {
-      fetch(
-        "/newstube/videos?" +
-          new URLSearchParams({ url: pl.id, type: "playlist" })
-      )
-        .then((res) => res.json())
-        .then((res) => {
-          unsortedVideos.push(res);
-          if (unsortedVideos.length === channels.length) {
-            sortVideos(unsortedVideos.flat());
-          }
-        });
-    }
+    // for (let pl of playlists) {
+    //   fetch(
+    //     "/newstube/videos?" +
+    //       new URLSearchParams({ url: pl.id, type: "playlist" })
+    //   )
+    //     .then((res) => res.json())
+    //     .then((res) => {
+    //       unsortedVideos.push(res);
+    //       if (unsortedVideos.length === channels.length) {
+    //         sortVideos(unsortedVideos.flat());
+    //       }
+    //     });
+    // }
   }
 
   function sortVideos(arr) {
@@ -72,6 +75,7 @@ function App() {
       return Date.parse(b.published) - Date.parse(a.published);
     });
     sortedArr = sortedArr.filter((e) => !watchedIds.includes(e.id));
+    console.log(sortedArr)
     if (Object.keys(currentVideo).length) {
       sortedArr = sortedArr.filter(
         (e) => e.id !== currentVideo.id
