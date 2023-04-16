@@ -39,7 +39,6 @@ function App() {
     console.log("get");
     let unsortedVideos = [];
     for (let ch of channels) {
-      // console.log(ch.type)
       let urlParams = {type: ch.type, id: ch.type === "playlist" ? ch.playlistId : ch.channelId}
       fetch(
         "/newstube/videos?" +
@@ -47,26 +46,12 @@ function App() {
       )
         .then((res) => res.json())
         .then((res) => {
-          // console.log(res)
           unsortedVideos.push(res);
           if (unsortedVideos.length === channels.length) {
             sortVideos(unsortedVideos.flat());
           }
         });
     }
-    // for (let pl of playlists) {
-    //   fetch(
-    //     "/newstube/videos?" +
-    //       new URLSearchParams({ url: pl.id, type: "playlist" })
-    //   )
-    //     .then((res) => res.json())
-    //     .then((res) => {
-    //       unsortedVideos.push(res);
-    //       if (unsortedVideos.length === channels.length) {
-    //         sortVideos(unsortedVideos.flat());
-    //       }
-    //     });
-    // }
   }
 
   function sortVideos(arr) {
@@ -80,10 +65,10 @@ function App() {
       sortedArr = sortedArr.filter(
         (e) => e.id !== currentVideo.id
       );
-      setVideos(sortedArr);
+      setVideos(sortedArr.slice(0,15));
     } else {
       setCurrentVideo(sortedArr[0]);
-      setVideos(sortedArr.slice(1));
+      setVideos(sortedArr.slice(1,15));
     }
     if(loading) setLoading(false);
   }

@@ -1,3 +1,10 @@
+import {
+  faFileDownload,
+  faFileExport,
+  faForward,
+  faStop,
+} from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import React from "react";
 export default function Controls({
   currentVideo,
@@ -19,13 +26,16 @@ export default function Controls({
   }
   return (
     <div className="controls">
-      <button onClick={skip}>Skip</button>
+      <button onClick={skip} title="Skip current video and mark it as played">
+        <FontAwesomeIcon icon={faForward} />
+      </button>
       <button
         onClick={() => {
           setVideos([]);
         }}
+        title="Stop playing and return to channel list"
       >
-        Channels
+        <FontAwesomeIcon icon={faStop} />
       </button>
       <a
         href={`data:text/json;charset=utf-8,${encodeURIComponent(
@@ -35,7 +45,9 @@ export default function Controls({
         target="_blank"
         rel="noreferrer"
       >
-        <button type="button">Export</button>
+        <button type="button" title="Export Channel List">
+          <FontAwesomeIcon icon={faFileExport} />
+        </button>
       </a>
     </div>
   );
