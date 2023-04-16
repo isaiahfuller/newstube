@@ -1,5 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import Channel from "./Channel";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faFileImport, faPlay } from "@fortawesome/free-solid-svg-icons";
 
 export default function Channels({
   channels,
@@ -28,7 +30,6 @@ export default function Channels({
         .then((res) => res.json())
         .then((res) => {
           setUrl("");
-          // console.log(res);
           if (
             !channels.filter((e) => e.channelId === res.header.author.id).length
           ) {
@@ -48,7 +49,6 @@ export default function Channels({
       fetch("/newstube/channel?" + new URLSearchParams({ url: url }))
         .then((res) => res.json())
         .then((res) => {
-          // console.log(res);
           if (
             !channels.filter(
               (e) => e.playlistId === res.endpoint.payload.playlistId
@@ -92,11 +92,8 @@ export default function Channels({
   }
 
   function removeChannel(index) {
-    // console.log("a")
     let tempChannels = [...channels];
-    // console.log(tempChannels)
     tempChannels.splice(index, 1);
-    // console.log(tempChannels)
     setChannels(tempChannels);
     saveChannels(tempChannels);
   }
@@ -136,8 +133,15 @@ export default function Channels({
           <input type="submit" value="Add" className="button" />
         </form>
         <div className="channels-buttons">
-          <button className="button" onClick={() => inputFile.current.click()}>
-            Import
+          <div className="flex-grow" />
+          <button
+            className="button"
+            onClick={() => inputFile.current.click()}
+          >
+            <span className="flex items-center">
+              <FontAwesomeIcon icon={faFileImport} />
+              <p className="px-2">Import</p>
+            </span>
           </button>
           <input
             type="file"
@@ -148,26 +152,31 @@ export default function Channels({
           />
           {channels.length ? (
             <button className="button" onClick={startPlayer}>
-              Save
+              <span className="flex items-center">
+              <FontAwesomeIcon icon={faPlay} />
+              <p className="px-2">Play</p>
+              </span>
             </button>
           ) : null}
         </div>
       </div>
-      <hr />
-      <ul className="channels-list">
-        {channels.map((ch, i) => (
-          <Channel
-            key={i}
-            i={i}
-            info={ch}
-            // thumbnail={ch.thumbnail}
-            // url={ch.url}
-            // channelName={ch.channelName}
-            removeChannel={removeChannel}
-            // type={ch.type}
-          />
-        ))}
-      </ul>
+      <hr className="p-1" />
+      <div className="channels-bottom">
+        <ul className="channels-list">
+          {channels.map((ch, i) => (
+            <Channel
+              key={i}
+              i={i}
+              info={ch}
+              // thumbnail={ch.thumbnail}
+              // url={ch.url}
+              // channelName={ch.channelName}
+              removeChannel={removeChannel}
+              // type={ch.type}
+            />
+          ))}
+        </ul>
+      </div>
     </div>
   );
 }

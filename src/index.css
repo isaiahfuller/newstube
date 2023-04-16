@@ -9,16 +9,16 @@
   input {
     @apply p-2 rounded w-auto;
   }
-  input[type=text] {
+  input[type="text"] {
     @apply text-black w-[80vw] sm:w-[60vw] lg:w-[40vw];
   }
-  input[type=url] {
-    @apply text-black w-[80vw] sm:w-[60vw] lg:w-[40vw];
+  input[type="url"] {
+    @apply text-black w-full;
   }
   li:nth-child(even) {
     @apply bg-slate-800;
   }
-  .button{
+  .button {
     @apply text-gray-50 border-slate-600 hover:border-slate-400;
     @apply p-2 border-2 border-solid mx-1 cursor-pointer rounded;
   }
@@ -38,45 +38,66 @@
     @apply h-[40vh] w-screen lg:h-screen lg:w-3/4;
   }
   .controls {
-    @apply flex justify-around py-3
+    @apply flex justify-around py-3;
   }
   .channels {
     @apply flex flex-col justify-around items-stretch w-screen h-screen overflow-hidden;
   }
   .channels-form {
-    @apply flex m-auto sm:m-0;
+    @apply flex m-auto sm:m-0 h-full w-full;
   }
-  .channels-form > input[type=url] {
+  .channels-form > input[type="url"] {
     @apply text-black;
   }
-  .channels-list{
-    @apply h-screen overflow-y-scroll
+  .channels-list {
+    /* @apply flex flex-wrap; */
+    @apply grid grid-flow-row gap-3 grid-cols-1 md:grid-cols-2 xl:grid-cols-3;
+    @apply p-1 m-auto;
+    @apply drop-shadow shadow-black;
+    @apply w-full md:w-[730px] lg:w-[950px] xl:w-[1200px] 2xl:w-[1500px];
   }
   .channels-list-element {
-    @apply flex items-center p-5;
+    @apply md:bg-slate-800;
+    @apply w-full md:w-[350px] lg:w-[470px] xl:w-[375px] 2xl:w-[470px];
+    @apply flex justify-between;
+    @apply md:rounded-2xl m-auto px-1;
   }
-  .channels-list-element > img {
-    @apply rounded-full
+  .channels-list-link {
+    @apply flex flex-grow items-center px-2 py-3;
+  }
+  .channels-list-link > img {
+    @apply rounded-full max-w-[76px] shadow shadow-slate-900;
+  }
+  .channels-list-title {
+    @apply p-2 flex-grow
+  }
+  .channels-list-close {
+    @apply flex-shrink w-8 m-auto my-0
   }
   .channels-top {
-    @apply flex justify-around py-2 flex-col sm:flex-row m-auto sm:m-0
+    @apply flex justify-between items-center py-2 flex-col sm:flex-row m-auto p-3;
+    @apply w-full md:w-[740px] lg:w-[975px] xl:w-[1200px] 2xl:w-[1500px];
+  }
+  .channels-bottom {
+    @apply h-full overflow-y-scroll m-auto w-full
   }
   .channels-buttons {
-    @apply flex m-auto sm:m-1 my-1
+    @apply flex flex-shrink m-auto my-2 sm:m-1 text-lg justify-between;
+    @apply w-full sm:w-auto h-full;
   }
   .channels-buttons button {
-    @apply w-[41vw] sm:w-[inherit]
+    @apply w-[inherit];
   }
   .channels-footer {
-    @apply flex justify-center p-2
+    @apply flex justify-center p-2;
   }
   .videolist-video {
-    @apply flex items-center w-full
+    @apply flex items-center w-full;
   }
   .videolist-video img {
-    @apply aspect-video h-10 xl:h-24 p-1
+    @apply aspect-video h-10 xl:h-24 p-1;
   }
   .videolist-text p {
-    @apply block
+    @apply block;
   }
 }
