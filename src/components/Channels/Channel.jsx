@@ -3,11 +3,7 @@ import { faTimes, faTvAlt } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 export default function Channel({ info, i, removeChannel }) {
-  // if(info.type === "playlist") console.log(info)
   const { thumbnail, url, channelName, type, playlistName } = info;
-  // if(type === "playlist"){
-  //   const {playlistName} = info
-  // }
   return (
     <li key={i} className="channels-list-element">
       <a
