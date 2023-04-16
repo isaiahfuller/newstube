@@ -36,7 +36,6 @@ function App() {
   }, []);
 
   function getVideos() {
-    console.log("get");
     let unsortedVideos = [];
     for (let ch of channels) {
       let urlParams = {type: ch.type, id: ch.type === "playlist" ? ch.playlistId : ch.channelId}
@@ -55,12 +54,10 @@ function App() {
   }
 
   function sortVideos(arr) {
-    console.log("sort");
     let sortedArr = arr.sort((a, b) => {
       return Date.parse(b.published) - Date.parse(a.published);
     });
     sortedArr = sortedArr.filter((e) => !watchedIds.includes(e.id));
-    console.log(sortedArr)
     if (Object.keys(currentVideo).length) {
       sortedArr = sortedArr.filter(
         (e) => e.id !== currentVideo.id

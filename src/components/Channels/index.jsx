@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import Channel from "./Channel";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faFileImport, faPlay } from "@fortawesome/free-solid-svg-icons";
@@ -12,9 +12,9 @@ export default function Channels({
   const matchRegex = /youtube.com\/(channel|user|c|@)[/\w\-_]+/;
   const inputFile = useRef(null);
 
-  // useEffect(() => {
-  //   if (channels.length) sortChannels();
-  // }, []);
+  useEffect(() => {
+    document.title = "Newstube"
+  }, []);
 
   function onSubmit(e) {
     e.preventDefault();
@@ -107,7 +107,6 @@ export default function Channels({
     let file = e.target.files[0];
     file.text().then((text) => {
       let newChannels = JSON.parse(text);
-      // console.log(newChannels)
       for (let ch of newChannels) {
         if ("playlistId" in ch) {
           ch.type = "playlist";

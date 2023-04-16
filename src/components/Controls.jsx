@@ -10,18 +10,13 @@ export default function Controls({
   videos,
   setVideos,
   setCurrentVideo,
-  getVideos,
   watchedIds,
   setWatched,
 }) {
   function skip() {
-    setWatched([...watchedIds, currentVideo["yt:videoId"]]);
-    localStorage.setItem(
-      "watched",
-      JSON.stringify([...watchedIds, currentVideo["yt:videoId"]])
-    );
-    setCurrentVideo(videos[0]);
     setVideos([...videos].slice(1));
+    setWatched([...watchedIds, currentVideo.id]);
+    setCurrentVideo(videos[0]);
   }
   return (
     <div className="controls">
