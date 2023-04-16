@@ -17,9 +17,6 @@ export default function Controls({
     setCurrentVideo(videos[0]);
     setVideos([...videos].slice(1));
   }
-  function download() {
-    let channelJson = localStorage.getItem("channels");
-  }
   return (
     <div className="controls">
       <button onClick={skip}>Skip</button>
@@ -36,6 +33,7 @@ export default function Controls({
         )}`}
         download="newstube.json"
         target="_blank"
+        rel="noreferrer"
       >
         <button type="button">Export</button>
       </a>

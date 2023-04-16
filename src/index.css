@@ -69,17 +69,17 @@
     @apply rounded-full max-w-[76px] shadow shadow-slate-900;
   }
   .channels-list-title {
-    @apply p-2 flex-grow
+    @apply p-2 flex-grow;
   }
   .channels-list-close {
-    @apply flex-shrink w-8 m-auto my-0
+    @apply flex-shrink w-8 m-auto my-0;
   }
   .channels-top {
     @apply flex justify-between items-center py-2 flex-col sm:flex-row m-auto p-3;
     @apply w-full md:w-[740px] lg:w-[975px] xl:w-[1200px] 2xl:w-[1500px];
   }
   .channels-bottom {
-    @apply h-full overflow-y-scroll m-auto w-full
+    @apply h-full overflow-y-scroll m-auto w-full;
   }
   .channels-buttons {
     @apply flex flex-shrink m-auto my-2 sm:m-1 text-lg justify-between;

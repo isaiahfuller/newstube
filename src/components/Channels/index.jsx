@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useRef, useState } from "react";
 import Channel from "./Channel";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faFileImport, faPlay } from "@fortawesome/free-solid-svg-icons";
@@ -7,16 +7,14 @@ export default function Channels({
   channels,
   setChannels,
   getVideos,
-  playlists,
-  setPlaylists,
 }) {
   const [url, setUrl] = useState("");
   const matchRegex = /youtube.com\/(channel|user|c|@)[/\w\-_]+/;
   const inputFile = useRef(null);
 
-  useEffect(() => {
-    if (channels.length) sortChannels();
-  }, []);
+  // useEffect(() => {
+  //   if (channels.length) sortChannels();
+  // }, []);
 
   function onSubmit(e) {
     e.preventDefault();
