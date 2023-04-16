@@ -1,5 +1,4 @@
 import {
-  faFileDownload,
   faFileExport,
   faForward,
   faStop,
