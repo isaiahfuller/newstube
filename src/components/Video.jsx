@@ -13,7 +13,7 @@ export default function Video({
   function onStart(e) {
     getVideos();
     localStorage.setItem("watched", JSON.stringify(watchedIds))
-    document.title = `${id.title} - Newstube`
+    document.title = `${id.title} | Newstube`
   }
 
   function onEnded(e) {

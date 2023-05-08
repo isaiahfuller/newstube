@@ -1,7 +1,11 @@
 import React, { useEffect, useRef, useState } from "react";
 import Channel from "./Channel";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faFileImport, faPlay } from "@fortawesome/free-solid-svg-icons";
+import {
+  faFileImport,
+  faPlay,
+  faSearch,
+} from "@fortawesome/free-solid-svg-icons";
 import ChannelSearch from "./ChannelSearch";
 
 export default function Channels({ channels, setChannels, getVideos }) {
@@ -18,7 +22,7 @@ export default function Channels({ channels, setChannels, getVideos }) {
     document.title = "Newstube";
   }, []);
 
-  function onSubmit(e) {
+  function handleSubmit(e) {
     e.preventDefault();
     addSource();
   }
@@ -104,7 +108,6 @@ export default function Channels({ channels, setChannels, getVideos }) {
           )
             .then((res) => res.json())
             .then((res) => {
-              console.log(res);
               for (const pl of res) {
                 playlists.push({
                   channelId: pl.author.id,
@@ -173,7 +176,7 @@ export default function Channels({ channels, setChannels, getVideos }) {
   return (
     <div className="channels">
       <div className="channels-top">
-        <form onSubmit={onSubmit} className="channels-form">
+        <form onSubmit={handleSubmit} className="channels-form">
           <input
             name="url"
             className="source-input"
@@ -181,14 +184,23 @@ export default function Channels({ channels, setChannels, getVideos }) {
             onChange={(e) => setUrl(e.target.value)}
             value={url}
           />
-          <input type="submit" value="Search" className="button" />
+          <button className="button" onClick={handleSubmit}>
+            <span>
+              <p>
+                <FontAwesomeIcon icon={faSearch} />
+              </p>{" "}
+              <p>Search</p>
+            </span>
+          </button>
         </form>
         <div className="channels-buttons">
           <div className="flex-grow" />
           <button className="button" onClick={() => inputFile.current.click()}>
-            <span className="flex items-center">
-              <FontAwesomeIcon icon={faFileImport} />
-              <p className="px-2">Import</p>
+            <span>
+              <p>
+                <FontAwesomeIcon icon={faFileImport} />
+              </p>
+              <p>Import</p>
             </span>
           </button>
           <input
@@ -200,9 +212,11 @@ export default function Channels({ channels, setChannels, getVideos }) {
           />
           {channels.length ? (
             <button className="button" onClick={startPlayer}>
-              <span className="flex items-center">
-                <FontAwesomeIcon icon={faPlay} />
-                <p className="px-2">Play</p>
+              <span>
+                <p>
+                  <FontAwesomeIcon icon={faPlay} />
+                </p>
+                <p>Play</p>
               </span>
             </button>
           ) : null}
@@ -216,6 +230,8 @@ export default function Channels({ channels, setChannels, getVideos }) {
             setSearchResults={setSearchResults}
             channels={channels}
             addChannel={addSource}
+            term={url}
+            setTerm={setUrl}
           />
         ) : (
           <ul className="channels-list">

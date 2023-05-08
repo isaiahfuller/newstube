@@ -15,6 +15,12 @@
   h1 {
     @apply text-3xl
   }
+  span {
+    @apply flex items-center justify-center
+  }
+  span > p {
+    @apply px-1
+  }
   li:nth-child(even) {
     @apply bg-slate-800;
   }
@@ -96,7 +102,7 @@
   .search-header {
     @apply flex justify-between items-center;
     @apply m-auto p-1;
-    @apply w-full md:w-[740px] lg:w-[975px] xl:w-[1200px] 2xl:w-[1500px];
+    @apply w-full md:w-[730px] lg:w-[950px] xl:w-[1200px] 2xl:w-[1500px];
   }  
   .videolist-video {
     @apply flex items-center w-full;
