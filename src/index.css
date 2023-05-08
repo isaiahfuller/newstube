@@ -12,8 +12,8 @@
   input[type="text"] {
     @apply text-black w-[80vw] sm:w-[60vw] lg:w-[40vw];
   }
-  input[type="url"] {
-    @apply text-black w-full;
+  h1 {
+    @apply text-3xl
   }
   li:nth-child(even) {
     @apply bg-slate-800;
@@ -46,8 +46,8 @@
   .channels-form {
     @apply flex m-auto sm:m-0 h-full w-full;
   }
-  .channels-form > input[type="url"] {
-    @apply text-black;
+  .source-input {
+    @apply text-black w-full;
   }
   .channels-list {
     @apply grid grid-flow-row gap-3 grid-cols-1 md:grid-cols-2 xl:grid-cols-3;
@@ -90,6 +90,14 @@
   .channels-footer {
     @apply flex justify-center p-2;
   }
+  .channels-search {
+    @apply flex flex-col;
+  }
+  .search-header {
+    @apply flex justify-between items-center;
+    @apply m-auto p-1;
+    @apply w-full md:w-[740px] lg:w-[975px] xl:w-[1200px] 2xl:w-[1500px];
+  }  
   .videolist-video {
     @apply flex items-center w-full;
   }

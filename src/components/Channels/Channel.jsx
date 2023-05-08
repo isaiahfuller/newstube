@@ -1,9 +1,10 @@
 import { faListAlt } from "@fortawesome/free-regular-svg-icons";
-import { faTimes, faTvAlt } from "@fortawesome/free-solid-svg-icons";
+import { faPlus, faTimes, faTvAlt } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
-export default function Channel({ info, i, removeChannel }) {
+export default function Channel({ info, i, removeChannel=null, addChannel=null }) {
   const { thumbnail, url, channelName, type, playlistName } = info;
+  
   return (
     <li key={i} className="channels-list-element">
       <a
@@ -21,9 +22,9 @@ export default function Channel({ info, i, removeChannel }) {
       </a>
       <button
         className="channels-list-close"
-        onClick={() => removeChannel(i)}
+        onClick={() => removeChannel ? removeChannel(i) : addChannel(url)}
       >
-        <FontAwesomeIcon icon={faTimes} />
+        <FontAwesomeIcon icon={removeChannel ? faTimes : faPlus} />
       </button>
     </li>
   );
