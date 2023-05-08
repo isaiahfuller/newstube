@@ -39,9 +39,13 @@ export default function Channels({ channels, setChannels, getVideos }) {
       )
         .then((res) => res.json())
         .then((res) => {
-          if (
-            !channels.filter((e) => e.channelId === res.header.author.id).length
-          ) {
+          let plCount = 0;
+          let matching = channels.filter((e) => {
+            if (e.channelId === res.header.author.id && "playlistId" in e)
+              plCount++;
+            return e.channelId === res.header.author.id;
+          });
+          if (!matching.length || matching.length === plCount) {
             sortChannels([
               ...channels,
               {
