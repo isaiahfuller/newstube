@@ -23,6 +23,10 @@ export default function ChannelSearch({
 
   useEffect(() => {
     document.title = `"${term}" - Search Results | Newstube`;
+    
+    return () => {
+      document.title = `Newstube`;
+    };
   }, [term]);
 
   return (
