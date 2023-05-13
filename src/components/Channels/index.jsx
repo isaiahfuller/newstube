@@ -1,36 +1,51 @@
 import React, { useEffect, useRef, useState } from "react";
 import Channel from "./Channel";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faFileImport, faPlay } from "@fortawesome/free-solid-svg-icons";
+import {
+  faFileImport,
+  faPlay,
+  faSearch,
+} from "@fortawesome/free-solid-svg-icons";
+import ChannelSearch from "./ChannelSearch";
 
-export default function Channels({
-  channels,
-  setChannels,
-  getVideos,
-}) {
+export default function Channels({ channels, setChannels, getVideos }) {
   const [url, setUrl] = useState("");
+  const [searchResults, setSearchResults] = useState({
+    channels: [],
+    playlists: [],
+    active: false,
+  });
   const matchRegex = /youtube.com\/(channel|user|c|@)[/\w\-_]+/;
   const inputFile = useRef(null);
 
   useEffect(() => {
-    document.title = "Newstube"
+    document.title = "Newstube";
   }, []);
 
-  function onSubmit(e) {
+  function handleSubmit(e) {
     e.preventDefault();
-    if (url.match(matchRegex)) {
+    addSource();
+  }
+
+  function addSource(source = url) {
+    if (source.match(matchRegex) || source.startsWith("@")) {
       fetch(
         "/newstube/channel?" +
           new URLSearchParams({
-            url: url,
+            url: source.startsWith("@")
+              ? "https://youtube.com/" + source
+              : source,
           })
       )
         .then((res) => res.json())
         .then((res) => {
-          setUrl("");
-          if (
-            !channels.filter((e) => e.channelId === res.header.author.id).length
-          ) {
+          let plCount = 0;
+          let matching = channels.filter((e) => {
+            if (e.channelId === res.header.author.id && "playlistId" in e)
+              plCount++;
+            return e.channelId === res.header.author.id;
+          });
+          if (!matching.length || matching.length === plCount) {
             sortChannels([
               ...channels,
               {
@@ -41,10 +56,11 @@ export default function Channels({
                 type: "channel",
               },
             ]);
+            setUrl("");
           }
         });
-    } else if (url.includes("?list=")) {
-      fetch("/newstube/channel?" + new URLSearchParams({ url: url }))
+    } else if (source.includes("?list=")) {
+      fetch("/newstube/channel?" + new URLSearchParams({ url: source }))
         .then((res) => res.json())
         .then((res) => {
           if (
@@ -60,14 +76,59 @@ export default function Channels({
                 playlistName: res.info.title,
                 channelName: res.info.author.name,
                 thumbnail: res.info.author.thumbnails[1].url,
-                url: url,
+                url: source,
                 type: "playlist",
               },
             ];
             sortChannels(temp);
-            setUrl("");
             localStorage.setItem("channels", JSON.stringify(temp));
+            setUrl("");
           }
+        });
+    } else {
+      const channels = [];
+      const playlists = [];
+      setSearchResults({ ...searchResults, active: true });
+      fetch(
+        "/newstube/search?" +
+          new URLSearchParams({ term: source, type: "channel" })
+      )
+        .then((res) => res.json())
+        .then((res) => {
+          for (const ch of res) {
+            let thumbnail = ch.author.thumbnails[1].url;
+            if (thumbnail.startsWith("//")) thumbnail = "https:" + thumbnail;
+            channels.push({
+              channelId: ch.author.id,
+              channelName: ch.author.name,
+              thumbnail: thumbnail,
+              url: ch.author.url,
+              type: "channel",
+            });
+          }
+          fetch(
+            "/newstube/search?" +
+              new URLSearchParams({ term: source, type: "playlist" })
+          )
+            .then((res) => res.json())
+            .then((res) => {
+              for (const pl of res) {
+                playlists.push({
+                  channelId: pl.author.id,
+                  channelName: pl.author.name,
+                  playlistName: pl.title.text,
+                  playlistId: pl.id,
+                  thumbnail: pl.thumbnails[0].url,
+                  url: "https://www.youtube.com/playlist?list=" + pl.id,
+                  type: "playlist",
+                });
+              }
+              setSearchResults({
+                channels: channels,
+                playlists: playlists,
+                active: true,
+              });
+            });
         });
     }
   }
@@ -119,25 +180,31 @@ export default function Channels({
   return (
     <div className="channels">
       <div className="channels-top">
-        <form onSubmit={onSubmit} className="channels-form">
+        <form onSubmit={handleSubmit} className="channels-form">
           <input
             name="url"
-            type="url"
-            placeholder="YouTube channel/playlist URL"
+            className="source-input"
+            placeholder="Search or add from URL..."
             onChange={(e) => setUrl(e.target.value)}
             value={url}
           />
-          <input type="submit" value="Add" className="button" />
+          <button className="button" onClick={handleSubmit}>
+            <span>
+              <p>
+                <FontAwesomeIcon icon={faSearch} />
+              </p>{" "}
+              <p>Search</p>
+            </span>
+          </button>
         </form>
         <div className="channels-buttons">
           <div className="flex-grow" />
-          <button
-            className="button"
-            onClick={() => inputFile.current.click()}
-          >
-            <span className="flex items-center">
-              <FontAwesomeIcon icon={faFileImport} />
-              <p className="px-2">Import</p>
+          <button className="button" onClick={() => inputFile.current.click()}>
+            <span>
+              <p>
+                <FontAwesomeIcon icon={faFileImport} />
+              </p>
+              <p>Import</p>
             </span>
           </button>
           <input
@@ -149,9 +216,11 @@ export default function Channels({
           />
           {channels.length ? (
             <button className="button" onClick={startPlayer}>
-              <span className="flex items-center">
-              <FontAwesomeIcon icon={faPlay} />
-              <p className="px-2">Play</p>
+              <span>
+                <p>
+                  <FontAwesomeIcon icon={faPlay} />
+                </p>
+                <p>Play</p>
               </span>
             </button>
           ) : null}
@@ -159,20 +228,22 @@ export default function Channels({
       </div>
       <hr className="p-1" />
       <div className="channels-bottom">
-        <ul className="channels-list">
-          {channels.map((ch, i) => (
-            <Channel
-              key={i}
-              i={i}
-              info={ch}
-              // thumbnail={ch.thumbnail}
-              // url={ch.url}
-              // channelName={ch.channelName}
-              removeChannel={removeChannel}
-              // type={ch.type}
-            />
-          ))}
-        </ul>
+        {searchResults.active ? (
+          <ChannelSearch
+            searchResults={searchResults}
+            setSearchResults={setSearchResults}
+            channels={channels}
+            addChannel={addSource}
+            term={url}
+            setTerm={setUrl}
+          />
+        ) : (
+          <ul className="channels-list">
+            {channels.map((ch, i) => (
+              <Channel key={i} i={i} info={ch} removeChannel={removeChannel} />
+            ))}
+          </ul>
+        )}
       </div>
     </div>
   );

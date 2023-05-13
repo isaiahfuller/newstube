@@ -1,5 +1,6 @@
 # Newstube - [Live](https://isaiah.moe/newstube "Live")
-A 24/7 newsfeed using a user-provided list of YouTube channels.
+A 24/7 newsfeed using a user-provided list of YouTube channels.  
+Built with React, TailwindCSS, and Express
 
 <details>
 <summary>Screenshots</summary>
