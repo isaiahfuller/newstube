@@ -14,9 +14,10 @@ export default function Controls({
   setWatched,
 }) {
   function skip() {
-    setVideos([...videos].slice(1));
+    const newVideos = videos.slice(1);
+    setVideos(newVideos);
     setWatched([...watchedIds, currentVideo.id]);
-    setCurrentVideo(videos[0]);
+    setCurrentVideo(newVideos[0]);
   }
   return (
     <div className="controls">

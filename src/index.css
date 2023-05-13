@@ -37,6 +37,10 @@
   .main {
     @apply flex flex-col lg:flex-row justify-center;
   }
+  .video-page {
+    @apply flex flex-col lg:flex-row justify-center;
+    @apply w-full
+  }
   .sidebar {
     @apply h-[60vh] lg:h-screen lg:w-96;
   }

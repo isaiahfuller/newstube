@@ -12,7 +12,7 @@ export default function Player({
   setWatched,
 }) {
   return (
-    <div className="main">
+    <div className="video-page">
       <Video
         id={currentVideo}
         videos={videos}

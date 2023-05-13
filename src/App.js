@@ -71,6 +71,8 @@ function App() {
           channels={channels}
           setChannels={setChannels}
           getVideos={getVideos}
+          watchedIds={watchedIds}
+          setWatched={setWatched}
         />
       </div>
     );
