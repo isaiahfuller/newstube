@@ -96,6 +96,7 @@ export default function Channels({ channels, setChannels, getVideos }) {
         .then((res) => res.json())
         .then((res) => {
           for (const ch of res) {
+            if(ch.type === "ShowingResultsFor") continue
             let thumbnail = ch.author.thumbnails[1].url;
             if (thumbnail.startsWith("//")) thumbnail = "https:" + thumbnail;
             channels.push({
@@ -113,6 +114,7 @@ export default function Channels({ channels, setChannels, getVideos }) {
             .then((res) => res.json())
             .then((res) => {
               for (const pl of res) {
+                if(pl.type === "ShowingResultsFor") continue
                 playlists.push({
                   channelId: pl.author.id,
                   channelName: pl.author.name,
