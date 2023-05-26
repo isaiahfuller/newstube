@@ -39,13 +39,16 @@
   }
   .video-page {
     @apply flex flex-col lg:flex-row justify-center;
-    @apply w-full
+    @apply w-screen h-screen
   }
   .sidebar {
     @apply h-[60vh] lg:h-screen lg:w-96;
   }
   .video-player {
     @apply h-[40vh] flex-grow w-screen lg:h-screen lg:w-auto;
+  }
+  .video-player-full {
+    @apply h-full flex-grow w-screen lg:h-screen lg:w-auto;
   }
   .controls {
     @apply flex justify-around py-3 border-b;

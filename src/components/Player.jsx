@@ -1,3 +1,4 @@
+import { useMemo, useState } from "react";
 import Controls from "./Controls";
 import Video from "./Video";
 import VideoList from "./VideoList";
@@ -11,8 +12,35 @@ export default function Player({
   watchedIds,
   setWatched,
 }) {
+  const [full, setFull] = useState(false);
+  const pageClass = useMemo(
+    () => "video-page" + (full ? " flex-col" : ""),
+    [full]
+  );
+
+  const controls = (
+    <Controls
+      currentVideo={currentVideo}
+      videos={videos}
+      setVideos={setVideos}
+      setCurrentVideo={setCurrentVideo}
+      getVideos={getVideos}
+      watchedIds={watchedIds}
+      setWatched={setWatched}
+      full={full}
+      setFull={setFull}
+    />
+  );
+
+  const sidebar = (
+    <div className="sidebar overflow-hidden">
+      {controls}
+      <VideoList videos={videos} />
+    </div>
+  );
+
   return (
-    <div className="video-page">
+    <div className={pageClass}>
       <Video
         id={currentVideo}
         videos={videos}
@@ -21,19 +49,9 @@ export default function Player({
         getVideos={getVideos}
         watchedIds={watchedIds}
         setWatched={setWatched}
+        full={full}
       />
-      <div className="sidebar overflow-hidden">
-        <Controls
-          currentVideo={currentVideo}
-          videos={videos}
-          setVideos={setVideos}
-          setCurrentVideo={setCurrentVideo}
-          getVideos={getVideos}
-          watchedIds={watchedIds}
-          setWatched={setWatched}
-        />
-        <VideoList videos={videos} />
-      </div>
+      {full ? controls : sidebar}
     </div>
   );
 }
