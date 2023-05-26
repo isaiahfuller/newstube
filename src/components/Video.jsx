@@ -8,6 +8,7 @@ export default function Video({
   getVideos,
   watchedIds,
   setWatched,
+  full
 }) {
   function onStart(e) {
     getVideos();
@@ -22,7 +23,7 @@ export default function Video({
   }
 
   return (
-    <div className="video-player">
+    <div className={full ? "video-player-full" : "video-player"}>
       <ReactPlayer
         url={`https://youtu.be/${id.id}`}
         onStart={onStart}

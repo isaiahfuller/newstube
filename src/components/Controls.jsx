@@ -1,7 +1,9 @@
 import {
+  faDownLeftAndUpRightToCenter,
   faFileExport,
   faForward,
   faStop,
+  faUpRightAndDownLeftFromCenter,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import React from "react";
@@ -12,6 +14,8 @@ export default function Controls({
   setCurrentVideo,
   watchedIds,
   setWatched,
+  full,
+  setFull
 }) {
   function skip() {
     const newVideos = videos.slice(1);
@@ -19,7 +23,20 @@ export default function Controls({
     setWatched([...watchedIds, currentVideo.id]);
     setCurrentVideo(newVideos[0]);
   }
-  return (
+  function playerSize(){
+    setFull(!full)
+  }
+  const expand = (
+    <button onClick={playerSize} title="Hide video queue">
+      <FontAwesomeIcon icon={faUpRightAndDownLeftFromCenter} />
+    </button>
+  );
+
+  const hide = (
+    <button onClick={playerSize} title="Show video queue">
+      <FontAwesomeIcon icon={faDownLeftAndUpRightToCenter} />
+    </button>
+  );  return (
     <div className="controls">
       <button onClick={skip} title="Skip current video and mark it as played">
         <FontAwesomeIcon icon={faForward} />
@@ -44,6 +61,7 @@ export default function Controls({
           <FontAwesomeIcon icon={faFileExport} />
         </button>
       </a>
+      {full ? hide : expand}
     </div>
   );
 }
