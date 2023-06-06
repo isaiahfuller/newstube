@@ -35,13 +35,17 @@ function App() {
         id: ch.type === "playlist" ? ch.playlistId : ch.channelId,
       };
       fetch("/newstube/videos?" + new URLSearchParams(urlParams))
-        .then((res) => res.json())
-        .then((res) => {
-          unsortedVideos.push(res);
-          if (unsortedVideos.length === channels.length) {
-            sortVideos(unsortedVideos.flat());
+        .then(async (res) => {
+          if(!res.ok){
+            throw new Error("Connection error")
           }
-        });
+          res = await res.json()
+          unsortedVideos.push(res);
+          if (ch === channels.at(-1)) {
+              sortVideos(unsortedVideos.flat());
+          }
+        })
+        .catch(e => console.error(e))
     }
   }
 
