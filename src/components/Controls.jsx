@@ -18,10 +18,11 @@ export default function Controls({
   setFull
 }) {
   function skip() {
+    const nextVideo = videos[0];
     const newVideos = videos.slice(1);
     setVideos(newVideos);
     setWatched([...watchedIds, currentVideo.id]);
-    setCurrentVideo(newVideos[0]);
+    setCurrentVideo(nextVideo);
   }
   function playerSize(){
     setFull(!full)
