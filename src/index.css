@@ -123,4 +123,8 @@
     -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
   }
+  .welcome {
+    @apply w-full md:w-[740px] lg:w-[975px] xl:w-[1200px] 2xl:w-[1500px];
+    @apply m-auto p-1
+  }
 }

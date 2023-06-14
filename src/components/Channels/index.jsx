@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import Channel from "./Channel";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -15,11 +15,14 @@ export default function Channels({ channels, setChannels, getVideos }) {
     playlists: [],
     active: false,
   });
+  const [loading, setLoading] = useState(true);
   const matchRegex = /youtube.com\/(channel|user|c|@)[/\w\-_]+/;
   const inputFile = useRef(null);
+  const emptyList = useMemo(() => !channels.length);
 
   useEffect(() => {
     document.title = "Newstube";
+    setLoading(false)
   }, []);
 
   function handleSubmit(e) {
@@ -29,7 +32,7 @@ export default function Channels({ channels, setChannels, getVideos }) {
 
   function addSource(source = url) {
     if (source.match(matchRegex) || source.startsWith("@")) {
-      fetch(
+      return fetch(
         "/newstube/channel?" +
           new URLSearchParams({
             url: source.startsWith("@")
@@ -46,21 +49,22 @@ export default function Channels({ channels, setChannels, getVideos }) {
             return e.channelId === res.header.author.id;
           });
           if (!matching.length || matching.length === plCount) {
-            sortChannels([
-              ...channels,
-              {
-                channelId: res.header.author.id,
-                channelName: res.header.author.name,
-                thumbnail: res.header.author.thumbnails[1].url,
-                url: res.header.author.url,
-                type: "channel",
-              },
-            ]);
+            const newChannelInfo = {
+              channelId: res.header.author.id,
+              channelName: res.header.author.name,
+              thumbnail: res.header.author.thumbnails[1].url,
+              url: res.header.author.url,
+              type: "channel",
+            };
+            let temp = [...channels, newChannelInfo];
+            sortChannels(temp);
+            localStorage.setItem("channels", JSON.stringify(temp));
             setUrl("");
+            return newChannelInfo;
           }
         });
     } else if (source.includes("?list=")) {
-      fetch("/newstube/channel?" + new URLSearchParams({ url: source }))
+      return fetch("/newstube/channel?" + new URLSearchParams({ url: source }))
         .then((res) => res.json())
         .then((res) => {
           if (
@@ -68,21 +72,20 @@ export default function Channels({ channels, setChannels, getVideos }) {
               (e) => e.playlistId === res.endpoint.payload.playlistId
             ).length
           ) {
-            let temp = [
-              ...channels,
-              {
-                channelId: res.info.author.id,
-                playlistId: res.endpoint.payload.playlistId,
-                playlistName: res.info.title,
-                channelName: res.info.author.name,
-                thumbnail: res.info.author.thumbnails[1].url,
-                url: source,
-                type: "playlist",
-              },
-            ];
+            const newPlaylistInfo = {
+              channelId: res.info.author.id,
+              playlistId: res.endpoint.payload.playlistId,
+              playlistName: res.info.title,
+              channelName: res.info.author.name,
+              thumbnail: res.info.author.thumbnails[1].url,
+              url: source,
+              type: "playlist",
+            };
+            let temp = [...channels, newPlaylistInfo];
             sortChannels(temp);
             localStorage.setItem("channels", JSON.stringify(temp));
             setUrl("");
+            return newPlaylistInfo;
           }
         });
     } else {
@@ -96,7 +99,7 @@ export default function Channels({ channels, setChannels, getVideos }) {
         .then((res) => res.json())
         .then((res) => {
           for (const ch of res) {
-            if(ch.type === "ShowingResultsFor") continue
+            if (ch.type === "ShowingResultsFor") continue;
             let thumbnail = ch.author.thumbnails[1].url;
             if (thumbnail.startsWith("//")) thumbnail = "https:" + thumbnail;
             channels.push({
@@ -114,7 +117,7 @@ export default function Channels({ channels, setChannels, getVideos }) {
             .then((res) => res.json())
             .then((res) => {
               for (const pl of res) {
-                if(pl.type === "ShowingResultsFor") continue
+                if (pl.type === "ShowingResultsFor") continue;
                 playlists.push({
                   channelId: pl.author.id,
                   channelName: pl.author.name,
@@ -179,6 +182,68 @@ export default function Channels({ channels, setChannels, getVideos }) {
     });
   }
 
+  async function setExampleList(type) {
+    const newList = [];
+    let urls;
+    setLoading(true)
+    switch (type) {
+      case "gaming":
+        urls = [
+          "http://www.youtube.com/user/DigitalFoundry",
+          "http://www.youtube.com/c/ForceGamingYT",
+          "http://www.youtube.com/user/gameranxTV",
+          "https://www.youtube.com/@jessecox",
+          "http://www.youtube.com/c/kotaku",
+          "http://www.youtube.com/c/MrSujano",
+          "http://www.youtube.com/c/theScoreesports",
+          "http://www.youtube.com/c/SkillUp",
+          "https://www.youtube.com/@LukeStephensTV",
+          "https://www.youtube.com/@gamespot",
+          "https://www.youtube.com/@IGN",
+          "https://www.youtube.com/@PlayStationAccess",
+          "https://www.youtube.com/@GamingBolt",
+          "https://www.youtube.com/@pcgamer",
+          "https://www.youtube.com/@TheGamerUpdate",
+        ];
+        for (const url of urls) {
+          let temp = await addSource(url);
+          newList.push(temp);
+        }
+        break;
+      case "tech":
+        urls = [
+          "https://www.youtube.com/playlist?list=PLsuVSmND84Qu-VT1jBNdAXWDhhtgUqErv",
+          "http://www.youtube.com/c/Jayztwocents",
+          "http://www.youtube.com/c/TheLinuxExperiment",
+          "http://www.youtube.com/c/LMGClips",
+          "https://www.youtube.com/@NoTextToSpeech",
+          "https://www.youtube.com/playlist?list=PL3T6FdDHnjthQUVinzFGYRrZnKphzUFQt",
+          "https://www.youtube.com/@BloombergTechnology",
+          "https://www.youtube.com/@techlinked",
+          "https://www.youtube.com/@paulshardware",
+          "http://www.youtube.com/c/WaveformClips",
+          "https://www.youtube.com/@TickerSymbolYOU",
+          "https://www.youtube.com/@Tyrielwood",
+          "https://www.youtube.com/@UFDTech",
+          "https://www.youtube.com/@TrakinTech",
+          "https://www.youtube.com/@mkbhd",
+          "https://www.youtube.com/@TheVerge",
+          "https://www.youtube.com/@CNET",
+          "https://www.youtube.com/@DistroTube",
+        ];
+        for (const url of urls) {
+          let temp = await addSource(url);
+          newList.push(temp);
+        }
+        break;
+      default:
+        break;
+    }
+    console.log(newList);
+    sortChannels(newList);
+    setLoading(false)
+  }
+  if(loading) return <p>Loading...</p>
   return (
     <div className="channels">
       <div className="channels-top">
@@ -239,6 +304,19 @@ export default function Channels({ channels, setChannels, getVideos }) {
             term={url}
             setTerm={setUrl}
           />
+        ) : emptyList ? (
+          <div className="welcome">
+            <h1>Welcome to Newstube!</h1>
+            <p>
+              To get started, add some YouTube channels or playlists. You can
+              use the bar above to search or link them directly.
+            </p>
+            <p>You can also get started with some example lists below.</p>
+            <ul>
+              <li onClick={() => setExampleList("gaming")}>Gaming</li>
+              <li onClick={() => setExampleList("tech")}>Tech</li>
+            </ul>
+          </div>
         ) : (
           <ul className="channels-list">
             {channels.map((ch, i) => (
