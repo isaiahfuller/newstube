@@ -22,7 +22,7 @@ export default function Channels({ channels, setChannels, getVideos }) {
 
   useEffect(() => {
     document.title = "Newstube";
-    setLoading(false)
+    setLoading(false);
   }, []);
 
   function handleSubmit(e) {
@@ -185,7 +185,7 @@ export default function Channels({ channels, setChannels, getVideos }) {
   async function setExampleList(type) {
     const newList = [];
     let urls;
-    setLoading(true)
+    setLoading(true);
     switch (type) {
       case "gaming":
         urls = [
@@ -241,9 +241,9 @@ export default function Channels({ channels, setChannels, getVideos }) {
     }
     console.log(newList);
     sortChannels(newList);
-    setLoading(false)
+    setLoading(false);
   }
-  if(loading) return <p>Loading...</p>
+  if (loading) return <p>Loading...</p>;
   return (
     <div className="channels">
       <div className="channels-top">
@@ -311,10 +311,22 @@ export default function Channels({ channels, setChannels, getVideos }) {
               To get started, add some YouTube channels or playlists. You can
               use the bar above to search or link them directly.
             </p>
-            <p>You can also get started with some example lists below.</p>
+            <p>You can also get started with some example lists below:</p>
             <ul>
-              <li onClick={() => setExampleList("gaming")}>Gaming</li>
-              <li onClick={() => setExampleList("tech")}>Tech</li>
+              <li>
+                <button
+                  onClick={() => setExampleList("gaming")}
+                >
+                  Gaming
+                </button>
+              </li>
+              <li>
+                <button
+                  onClick={() => setExampleList("tech")}
+                >
+                  Tech
+                </button>
+              </li>
             </ul>
           </div>
         ) : (
